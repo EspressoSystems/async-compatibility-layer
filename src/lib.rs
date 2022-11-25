@@ -22,3 +22,6 @@ pub mod art;
 pub mod channel;
 
 pub mod async_primitives;
+
+#[cfg(feature = "logging-utils")]
+pub mod logging;

@@ -18,10 +18,10 @@ jobs:
     strategy:
       matrix:
         features:
-          - "async-std-executor,channel-async-std"
-          - "async-std-executor,channel-flume"
-          - "tokio-executor,channel-tokio"
-          - "tokio-executor,channel-flume"
+          - "async-std-executor,channel-async-std,logging-utils"
+          - "async-std-executor,channel-flume,logging-utils"
+          - "tokio-executor,channel-tokio,logging-utils"
+          - "tokio-executor,channel-flume,logging-utils"
     runs-on: ubuntu-latest
     timeout-minutes: 60
     if: ${{ github.actor != 'dependabot[bot]' }}

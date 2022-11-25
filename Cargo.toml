@@ -7,13 +7,22 @@ edition = "2021"
 [features]
 
 # async_std
-full-ci = ["async-std-executor", "channel-async-std"]
-tokio-ci = ["tokio-executor", "channel-tokio"]
+full-ci = ["async-std-executor", "logging-utils", "channel-async-std"]
+
+tokio-ci = ["tokio-executor", "logging-utils", "channel-tokio"]
 async-std-executor = ["dep:async-std"]
 tokio-executor = ["dep:tokio", "dep:tokio-stream", "dep:console-subscriber"]
 channel-flume = ["flume"]
 channel-tokio = ["dep:tokio", "dep:tokio-stream"]
 channel-async-std = ["dep:async-channel"]
+profiling = [
+    "opentelemetry-jaeger",
+    "tracing-opentelemetry",
+    "opentelemetry",
+    "logging-utils",
+    "opentelemetry-aws",
+]
+logging-utils = ["tracing-subscriber"]
 
 
 [dependencies]
@@ -44,4 +53,19 @@ tokio = { version = "1", optional = true, features = [
 ] }
 tokio-stream = { version = "0.1.11", optional = true }
 tracing = "0.1.37"
+tracing-error = "0.2.0"
+tracing-subscriber = { version = "0.3.16", features = [
+    "env-filter",
+    "json",
+], optional = true }
 console-subscriber = { version = "0.1.8", optional = true }
+opentelemetry = { version = "0.18.0", features = [
+    "rt-tokio-current-thread",
+    "metrics",
+], optional = true }
+tracing-opentelemetry = { version = "0.18.0", optional = true }
+opentelemetry-jaeger = { version = "0.17.0", features = [
+    "full",
+    "rt-tokio-current-thread",
+], optional = true }
+opentelemetry-aws = { version = "0.6.0", features = ["trace"], optional = true }
