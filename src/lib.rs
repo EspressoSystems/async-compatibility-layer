@@ -1,4 +1,4 @@
-//! Async compatability layer
+//! Async compatibility layer
 //! meant to control abstractions between tokio and async_std
 //! with a feature flag toggle
 //! while exposing the same interface for general consumption between both

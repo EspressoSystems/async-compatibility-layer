@@ -99,7 +99,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-compatability-layer"
+name = "async-compatibility-layer"
 version = "1.0.0"
 dependencies = [
  "async-channel",
