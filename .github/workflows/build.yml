@@ -1,0 +1,45 @@
+name: Ubuntu build
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+      - '*/*'
+      - 'update_flake_lock_action'
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        features:
+          - "async-std-executor,channel-async-std,logging-utils"
+          - "async-std-executor,channel-flume,logging-utils"
+          - "tokio-executor,channel-tokio,logging-utils"
+          - "tokio-executor,channel-flume,logging-utils"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Format
+        run: |
+          cargo fmt -- --check
+
+      - name: Build
+        run: |
+          cargo build --all-targets --workspace --features "${{ matrix.features }}"  --release
+
+      - name: Test
+        run: |
+          cargo test --release --all-targets --workspace --features "${{ matrix.features }}"
+
+      - name: Lint
+        run: |
+          cargo clippy --workspace --all-targets --features "${{ matrix.features }}" --bins --tests --examples -- -D warnings
