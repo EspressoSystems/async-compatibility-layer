@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use futures::Stream;
 
 /// inner module, used to group feature-specific imports
@@ -23,6 +25,8 @@ mod inner {
     pub struct Sender<T>(pub(super) InnerSender<T>);
     /// A bounded receiver, created with [`bounded`]
     pub struct Receiver<T>(pub(super) InnerReceiver<T>);
+    /// A bounded stream, created with a channel
+    pub struct BoundedStream<T>(pub(super) tokio_stream::wrappers::ReceiverStream<T>);
 
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(e: TryRecvError) -> Option<RecvError> {
@@ -45,12 +49,14 @@ mod inner {
 mod inner {
     pub use flume::{RecvError, SendError, TryRecvError};
 
-    use flume::{Receiver as InnerReceiver, Sender as InnerSender};
+    use flume::{r#async::RecvStream, Receiver as InnerReceiver, Sender as InnerSender};
 
     /// A bounded sender, created with [`bounded`]
     pub struct Sender<T>(pub(super) InnerSender<T>);
     /// A bounded receiver, created with [`bounded`]
     pub struct Receiver<T>(pub(super) InnerReceiver<T>);
+    /// A bounded stream, created with a channel
+    pub struct BoundedStream<T: 'static>(pub(super) RecvStream<'static, T>);
 
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(e: TryRecvError) -> Option<RecvError> {
@@ -79,6 +85,8 @@ mod inner {
     pub struct Sender<T>(pub(super) InnerSender<T>);
     /// A bounded receiver, created with [`channel`]
     pub struct Receiver<T>(pub(super) InnerReceiver<T>);
+    /// A bounded stream, created with a channel
+    pub struct BoundedStream<T>(pub(super) InnerReceiver<T>);
 
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(e: TryRecvError) -> Option<RecvError> {
@@ -132,7 +140,7 @@ impl<T> Receiver<T> {
         result
     }
     /// Turn this recever into a stream. This may fail on some implementations if multiple references of a receiver exist
-    pub fn into_stream(self) -> impl Stream<Item = T>
+    pub fn into_stream(self) -> BoundedStream<T>
     where
         T: 'static,
     {
@@ -143,7 +151,7 @@ impl<T> Receiver<T> {
         #[cfg(feature = "channel-flume")]
         let result = self.0.into_stream();
 
-        result
+        BoundedStream(result)
     }
     /// Try to receive a channel from the receiver. Will return immediately if there is no value available.
     ///
@@ -201,6 +209,25 @@ impl<T> Receiver<T> {
             }
         }
         Ok(result)
+    }
+}
+
+impl<T> Stream for BoundedStream<T> {
+    type Item = T;
+
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        #[cfg(feature = "channel-flume")]
+        return <flume::r#async::RecvStream<T>>::poll_next(Pin::new(&mut self.0), cx);
+        #[cfg(feature = "channel-tokio")]
+        return <tokio_stream::wrappers::ReceiverStream<T> as Stream>::poll_next(
+            Pin::new(&mut self.0),
+            cx,
+        );
+        #[cfg(feature = "channel-async-std")]
+        return <async_channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }
 

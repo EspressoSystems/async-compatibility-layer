@@ -1,5 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 
+use std::pin::Pin;
+
 use futures::Stream;
 
 /// inner module, used to group feature-specific imports
@@ -29,6 +31,9 @@ mod inner {
     /// An unbounded receiver, created with [`unbounded`]
     pub struct UnboundedReceiver<T>(pub(super) Mutex<InnerReceiver<T>>);
 
+    /// An unbounded stream, created with a channel
+    pub struct UnboundedStream<T>(pub(super) tokio_stream::wrappers::UnboundedReceiverStream<T>);
+
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(
         e: UnboundedTryRecvError,
@@ -53,7 +58,7 @@ mod inner {
 /// inner module, used to group feature-specific imports
 #[cfg(feature = "channel-flume")]
 mod inner {
-    use flume::{Receiver, Sender};
+    use flume::{r#async::RecvStream, Receiver, Sender};
     pub use flume::{
         RecvError as UnboundedRecvError, SendError as UnboundedSendError,
         TryRecvError as UnboundedTryRecvError,
@@ -63,6 +68,8 @@ mod inner {
     pub struct UnboundedSender<T>(pub(super) Sender<T>);
     /// An unbounded receiver, created with [`unbounded`]
     pub struct UnboundedReceiver<T>(pub(super) Receiver<T>);
+    /// A bounded stream, created with a channel
+    pub struct UnboundedStream<T: 'static>(pub(super) RecvStream<'static, T>);
 
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(
@@ -97,6 +104,8 @@ mod inner {
     pub struct UnboundedSender<T>(pub(super) Sender<T>);
     /// An unbounded receiver, created with [`unbounded`]
     pub struct UnboundedReceiver<T>(pub(super) Receiver<T>);
+    /// An unbounded stream, created with a channel
+    pub struct UnboundedStream<T>(pub(super) Receiver<T>);
 
     /// Turn a `TryRecvError` into a `RecvError` if it's not `Empty`
     pub(super) fn try_recv_error_to_recv_error(
@@ -156,10 +165,7 @@ impl<T> UnboundedReceiver<T> {
         result
     }
     /// Turn this receiver into a stream.
-    pub fn into_stream(self) -> impl Stream<Item = T>
-    where
-        T: 'static,
-    {
+    pub fn into_stream(self) -> UnboundedStream<T> {
         #[cfg(feature = "channel-async-std")]
         let result = self.0;
         #[cfg(feature = "channel-tokio")]
@@ -167,7 +173,7 @@ impl<T> UnboundedReceiver<T> {
         #[cfg(feature = "channel-flume")]
         let result = self.0.into_stream();
 
-        result
+        UnboundedStream(result)
     }
     /// Try to receive a value from the receiver.
     ///
@@ -244,6 +250,25 @@ impl<T> UnboundedReceiver<T> {
         #[cfg(not(feature = "channel-tokio"))]
         let result = Some(self.0.len());
         result
+    }
+}
+
+impl<T> Stream for UnboundedStream<T> {
+    type Item = T;
+
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        #[cfg(feature = "channel-flume")]
+        return <flume::r#async::RecvStream<T>>::poll_next(Pin::new(&mut self.0), cx);
+        #[cfg(feature = "channel-tokio")]
+        return <tokio_stream::wrappers::UnboundedReceiverStream<T> as Stream>::poll_next(
+            Pin::new(&mut self.0),
+            cx,
+        );
+        #[cfg(feature = "channel-async-std")]
+        return <async_channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }
 
