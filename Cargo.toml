@@ -58,7 +58,7 @@ tracing-subscriber = { version = "0.3.17", features = [
     "env-filter",
     "json",
 ], optional = true }
-console-subscriber = { version = "0.1.9", optional = true }
+console-subscriber = { version = "0.1.10", optional = true }
 opentelemetry = { version = "0.19.0", features = [
     "rt-tokio-current-thread",
     "metrics",
