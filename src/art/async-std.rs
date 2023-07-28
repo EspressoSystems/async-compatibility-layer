@@ -5,7 +5,7 @@ pub use async_std::{
     net::TcpStream,
     task::{
         block_on as async_block_on, block_on as async_block_on_with_runtime, sleep as async_sleep,
-        spawn as async_spawn, spawn_local as async_spawn_local,
+        spawn as async_spawn, spawn_local as async_spawn_local, yield_now as async_yield_now,
     },
     test as async_test,
 };
