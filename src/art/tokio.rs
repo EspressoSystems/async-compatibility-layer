@@ -4,6 +4,7 @@ pub use tokio::{
     main as async_main,
     net::TcpStream,
     task::spawn as async_spawn_local,
+    task::yield_now as async_yield_now,
     test as async_test,
     time::{sleep as async_sleep, timeout as async_timeout},
 };
