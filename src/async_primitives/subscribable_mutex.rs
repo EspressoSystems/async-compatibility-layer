@@ -5,12 +5,12 @@ use futures::{stream::FuturesOrdered, Future, FutureExt};
 use std::{fmt, time::Duration};
 use tracing::warn;
 
-#[cfg(feature = "async-std-executor")]
+#[cfg(all(async_executor_impl = "async-std"))]
 use async_std::prelude::StreamExt;
-#[cfg(feature = "tokio-executor")]
+#[cfg(all(async_executor_impl = "tokio"))]
 use tokio_stream::StreamExt;
-#[cfg(not(any(feature = "async-std-executor", feature = "tokio-executor")))]
-std::compile_error! {"Either feature \"async-std-executor\" or feature \"tokio-executor\" must be enabled for this crate."}
+#[cfg(not(any(async_executor_impl = "async-std", async_executor_impl = "tokio")))]
+std::compile_error! {"The cfg flag async_executor_impl must be set in rustflags to either \"async-std\" or \"tokio\" for this crate. Try adding `--cfg async_executor_impl=\"tokio\""}
 
 /// A mutex that can register subscribers to be notified. This works in the same way as [`Mutex`], but has some additional functions:
 ///
@@ -251,10 +251,10 @@ mod tests {
     use std::{sync::Arc, time::Duration};
 
     #[cfg_attr(
-        feature = "tokio-executor",
+        async_executor_impl = "tokio",
         tokio::test(flavor = "multi_thread", worker_threads = 2)
     )]
-    #[cfg_attr(feature = "async-std-executor", async_std::test)]
+    #[cfg_attr(async_executor_impl = "async-std", async_std::test)]
     async fn test_wait_timeout_until() {
         let mutex: Arc<SubscribableMutex<usize>> = Arc::default();
         {
@@ -276,10 +276,10 @@ mod tests {
     }
 
     #[cfg_attr(
-        feature = "tokio-executor",
+        async_executor_impl = "tokio",
         tokio::test(flavor = "multi_thread", worker_threads = 2)
     )]
-    #[cfg_attr(feature = "async-std-executor", async_std::test)]
+    #[cfg_attr(async_executor_impl = "async-std", async_std::test)]
     async fn test_wait_timeout_until_fail() {
         let mutex: Arc<SubscribableMutex<usize>> = Arc::default();
         {
@@ -300,10 +300,10 @@ mod tests {
     }
 
     #[cfg_attr(
-        feature = "tokio-executor",
+        async_executor_impl = "tokio",
         tokio::test(flavor = "multi_thread", worker_threads = 2)
     )]
-    #[cfg_attr(feature = "async-std-executor", async_std::test)]
+    #[cfg_attr(async_executor_impl = "async-std", async_std::test)]
     async fn test_compare_and_set() {
         let mutex = SubscribableMutex::new(5usize);
         let subscriber = mutex.subscribe().await;
@@ -322,10 +322,10 @@ mod tests {
     }
 
     #[cfg_attr(
-        feature = "tokio-executor",
+        async_executor_impl = "tokio",
         tokio::test(flavor = "multi_thread", worker_threads = 2)
     )]
-    #[cfg_attr(feature = "async-std-executor", async_std::test)]
+    #[cfg_attr(async_executor_impl = "async-std", async_std::test)]
     async fn test_subscriber() {
         let mutex = SubscribableMutex::new(5usize);
         let subscriber = mutex.subscribe().await;

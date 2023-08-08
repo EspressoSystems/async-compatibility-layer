@@ -66,13 +66,13 @@ fn gen_opentelemetry_layer() -> opentelemetry::sdk::trace::Tracer {
 /// I couldn't get the types to play nicely with a generic function
 macro_rules! complete_init {
     ( $R:expr ) => {
-        #[cfg(feature = "tokio-executor")]
+        #[cfg(async_executor_impl = "tokio")]
         let console_layer = var("TOKIO_CONSOLE_ENABLED") == Ok("true".to_string());
 
         #[cfg(feature = "profiling")]
         let tracer_enabled = var("OTL_ENABLED") == Ok("true".to_string());
 
-        #[cfg(all(feature = "tokio-executor", feature = "profiling"))]
+        #[cfg(all(async_executor_impl = "tokio", feature = "profiling"))]
         if console_layer && tracer_enabled {
             let registry = $R.with(console_subscriber::spawn());
             let registry = registry
@@ -88,7 +88,7 @@ macro_rules! complete_init {
             return;
         }
 
-        #[cfg(feature = "tokio-executor")]
+        #[cfg(async_executor_impl = "tokio")]
         if console_layer {
             $R.with(console_subscriber::spawn()).init();
             return;

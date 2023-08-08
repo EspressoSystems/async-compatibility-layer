@@ -21,8 +21,8 @@ mod oneshot;
 /// Unbounded channels
 mod unbounded;
 
-#[cfg(all(feature = "async-std-executor", feature = "channel-tokio"))]
-compile_error!("feature 'async-std-executor' and 'channel-tokio' cannot be used at the same time; 'channel-tokio' needs the tokio runtime");
+#[cfg(all(async_executor_impl = "async-std", async_channel_impl = "tokio"))]
+compile_error!("async_executor_impl = 'async-std-executor' and async_channel_impl = 'channel-tokio' cannot be used together; 'channel-tokio' needs the tokio runtime");
 
 pub use bounded::{bounded, BoundedStream, Receiver, RecvError, SendError, Sender, TryRecvError};
 pub use oneshot::{oneshot, OneShotReceiver, OneShotRecvError, OneShotSender, OneShotTryRecvError};
