@@ -10,10 +10,10 @@ jobs:
     strategy:
       matrix:
         flags:
-          - --cfg async_executor_impl="async-std" --cfg async_channel_impl="async-std"
-          - --cfg async_executor_impl="async-std" --cfg async_channel_impl="flume"
-          - --cfg async_executor_impl="tokio" --cfg async_channel_impl="tokio"
-          - --cfg async_executor_impl="tokio" --cfg async_channel_impl="flume"
+          - "--cfg async_executor_impl='async-std' --cfg async_channel_impl='async-std'"
+          - "--cfg async_executor_impl='async-std' --cfg async_channel_impl='flume'"
+          - "--cfg async_executor_impl='tokio' --cfg async_channel_impl='tokio'"
+          - "--cfg async_executor_impl='tokio' --cfg async_channel_impl='flume'"
     runs-on: ubuntu-latest
     timeout-minutes: 60
     if: ${{ github.actor != 'dependabot[bot]' }}
