@@ -37,12 +37,12 @@ jobs:
 
       - name: Build
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --features logging-utils --release
+          RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release
 
       - name: Test
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --features logging-utils --release
+          RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release
 
       - name: Lint
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --features logging-utils --bins --tests --examples -- -D warnings
+          RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --bins --tests --examples -- -D warnings

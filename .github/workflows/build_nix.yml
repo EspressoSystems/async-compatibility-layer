@@ -36,13 +36,13 @@ jobs:
 
       - name: Build
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --features logging-utils --release
+          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release
 
       - name: Test
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --features logging-utils --release
+          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release
 
       - name: Lint
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo clippy --all-targets --workspace --features logging-utils --release --bins --tests --examples -- -D warnings
+          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo clippy --all-targets --workspace --release --bins --tests --examples -- -D warnings
 
