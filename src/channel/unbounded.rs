@@ -11,6 +11,7 @@ mod inner {
         SendError as UnboundedSendError, TryRecvError as UnboundedTryRecvError,
     };
     use tokio::sync::mpsc::{UnboundedReceiver as InnerReceiver, UnboundedSender as InnerSender};
+    pub use tokio::sync::TryLockError as UnboundedTryLockError;
 
     /// A receiver error returned from [`UnboundedReceiver`]'s `recv`
     #[derive(Debug, PartialEq, Eq, Clone)]
@@ -182,10 +183,9 @@ impl<T> UnboundedReceiver<T> {
     /// Will return an error if no value is currently queued. This function will not block.
     pub fn try_recv(&self) -> Result<T, UnboundedTryRecvError> {
         #[cfg(async_channel_impl = "tokio")]
-        // TODO: Check if this actually doesn't block
-        let result = crate::art::async_block_on(self.0.lock()).try_recv();
+        let result = self.0.try_lock().map_err(|_| UnboundedTryRecvError::Empty)?.try_recv();
 
-        #[cfg(not(all(async_channel_impl = "tokio")))]
+        #[cfg(not(async_channel_impl = "tokio"))]
         let result = self.0.try_recv();
 
         result
