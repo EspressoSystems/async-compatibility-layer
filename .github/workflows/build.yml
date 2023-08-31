@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         flags:
-          - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\"
+          - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\" 
           - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"flume\"
           - --cfg async_executor_impl=\"tokio\" --cfg async_channel_impl=\"tokio\"
           - --cfg async_executor_impl=\"tokio\" --cfg async_channel_impl=\"flume\"
@@ -37,12 +37,12 @@ jobs:
 
       - name: Build
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release
+          RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release --features="logging-utils"
 
       - name: Test
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release
+          RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release --features="logging-utils"
 
       - name: Lint
         run: |
-          RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --bins --tests --examples -- -D warnings
+          RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --bins --tests --examples --features="logging-utils" -- -D warnings
