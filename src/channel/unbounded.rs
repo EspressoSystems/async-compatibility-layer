@@ -183,7 +183,11 @@ impl<T> UnboundedReceiver<T> {
     /// Will return an error if no value is currently queued. This function will not block.
     pub fn try_recv(&self) -> Result<T, UnboundedTryRecvError> {
         #[cfg(async_channel_impl = "tokio")]
-        let result = self.0.try_lock().map_err(|_| UnboundedTryRecvError::Empty)?.try_recv();
+        let result = self
+            .0
+            .try_lock()
+            .map_err(|_| UnboundedTryRecvError::Empty)?
+            .try_recv();
 
         #[cfg(not(async_channel_impl = "tokio"))]
         let result = self.0.try_recv();
