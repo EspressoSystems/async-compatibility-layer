@@ -3,7 +3,7 @@ use std::pin::Pin;
 use futures::Stream;
 
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "tokio"))]
+#[cfg(async_channel_impl = "tokio")]
 mod inner {
     pub use tokio::sync::mpsc::error::{SendError, TryRecvError};
 
@@ -45,7 +45,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "flume"))]
+#[cfg(async_channel_impl = "flume")]
 mod inner {
     pub use flume::{RecvError, SendError, TryRecvError};
 
@@ -75,7 +75,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "async-std"))]
+#[cfg(async_channel_impl = "async-std")]
 mod inner {
     pub use async_channel::{RecvError, SendError, TryRecvError};
 
@@ -114,7 +114,7 @@ impl<T> Sender<T> {
     ///
     /// Will return an error if the receiver is dropped
     pub async fn send(&self, msg: T) -> Result<(), SendError<T>> {
-        #[cfg(all(async_channel_impl = "flume"))]
+        #[cfg(async_channel_impl = "flume")]
         let result = self.0.send_async(msg).await;
         #[cfg(not(all(async_channel_impl = "flume")))]
         let result = self.0.send(msg).await;
@@ -130,11 +130,11 @@ impl<T> Receiver<T> {
     ///
     /// Will return an error if the sender is dropped
     pub async fn recv(&mut self) -> Result<T, RecvError> {
-        #[cfg(all(async_channel_impl = "flume"))]
+        #[cfg(async_channel_impl = "flume")]
         let result = self.0.recv_async().await;
-        #[cfg(all(async_channel_impl = "tokio"))]
+        #[cfg(async_channel_impl = "tokio")]
         let result = self.0.recv().await.ok_or(RecvError);
-        #[cfg(all(async_channel_impl = "async-std"))]
+        #[cfg(async_channel_impl = "async-std")]
         let result = self.0.recv().await;
 
         result
@@ -144,11 +144,11 @@ impl<T> Receiver<T> {
     where
         T: 'static,
     {
-        #[cfg(all(async_channel_impl = "async-std"))]
+        #[cfg(async_channel_impl = "async-std")]
         let result = self.0;
-        #[cfg(all(async_channel_impl = "tokio"))]
+        #[cfg(async_channel_impl = "tokio")]
         let result = tokio_stream::wrappers::ReceiverStream::new(self.0);
-        #[cfg(all(async_channel_impl = "flume"))]
+        #[cfg(async_channel_impl = "flume")]
         let result = self.0.into_stream();
 
         BoundedStream(result)
@@ -219,14 +219,14 @@ impl<T> Stream for BoundedStream<T> {
         mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Option<Self::Item>> {
-        #[cfg(all(async_channel_impl = "flume"))]
+        #[cfg(async_channel_impl = "flume")]
         return <flume::r#async::RecvStream<T>>::poll_next(Pin::new(&mut self.0), cx);
-        #[cfg(all(async_channel_impl = "tokio"))]
+        #[cfg(async_channel_impl = "tokio")]
         return <tokio_stream::wrappers::ReceiverStream<T> as Stream>::poll_next(
             Pin::new(&mut self.0),
             cx,
         );
-        #[cfg(all(async_channel_impl = "async-std"))]
+        #[cfg(async_channel_impl = "async-std")]
         return <async_channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }
