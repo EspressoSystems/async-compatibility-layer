@@ -1,5 +1,5 @@
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "tokio"))]
+#[cfg(async_channel_impl = "tokio")]
 mod inner {
     pub use tokio::sync::oneshot::{error::TryRecvError as OneShotTryRecvError, Receiver, Sender};
 
@@ -40,7 +40,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "flume"))]
+#[cfg(async_channel_impl = "flume")]
 mod inner {
     use flume::{Receiver, Sender};
     pub use flume::{RecvError as OneShotRecvError, TryRecvError as OneShotTryRecvError};
@@ -61,7 +61,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(all(async_channel_impl = "async-std"))]
+#[cfg(async_channel_impl = "async-std")]
 mod inner {
     use async_std::channel::{Receiver, Sender};
     pub use async_std::channel::{
@@ -90,7 +90,7 @@ impl<T> OneShotSender<T> {
     ///
     /// If this fails because the receiver is dropped, a warning will be printed.
     pub fn send(self, msg: T) {
-        #[cfg(all(async_channel_impl = "async-std"))]
+        #[cfg(async_channel_impl = "async-std")]
         if self.0.try_send(msg).is_err() {
             tracing::warn!("Could not send msg on OneShotSender, did the receiver drop?");
         }
@@ -108,11 +108,11 @@ impl<T> OneShotReceiver<T> {
     ///
     /// Will return an error if the sender channel is dropped
     pub async fn recv(self) -> Result<T, OneShotRecvError> {
-        #[cfg(all(async_channel_impl = "tokio"))]
+        #[cfg(async_channel_impl = "tokio")]
         let result = self.0.await.map_err(Into::into);
-        #[cfg(all(async_channel_impl = "flume"))]
+        #[cfg(async_channel_impl = "flume")]
         let result = self.0.recv_async().await;
-        #[cfg(all(async_channel_impl = "async-std"))]
+        #[cfg(async_channel_impl = "async-std")]
         let result = self.0.recv().await;
 
         result
