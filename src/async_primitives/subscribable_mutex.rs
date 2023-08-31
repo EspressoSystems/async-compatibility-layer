@@ -5,9 +5,9 @@ use futures::{stream::FuturesOrdered, Future, FutureExt};
 use std::{fmt, time::Duration};
 use tracing::warn;
 
-#[cfg(all(async_executor_impl = "async-std"))]
+#[cfg(async_executor_impl = "async-std")]
 use async_std::prelude::StreamExt;
-#[cfg(all(async_executor_impl = "tokio"))]
+#[cfg(async_executor_impl = "tokio")]
 use tokio_stream::StreamExt;
 #[cfg(not(any(async_executor_impl = "async-std", async_executor_impl = "tokio")))]
 std::compile_error! {"The cfg flag async_executor_impl must be set in rustflags to either \"async-std\" or \"tokio\" for this crate. Try adding `--cfg async_executor_impl=\"tokio\""}
