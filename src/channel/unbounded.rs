@@ -11,7 +11,6 @@ mod inner {
         SendError as UnboundedSendError, TryRecvError as UnboundedTryRecvError,
     };
     use tokio::sync::mpsc::{UnboundedReceiver as InnerReceiver, UnboundedSender as InnerSender};
-    pub use tokio::sync::TryLockError as UnboundedTryLockError;
 
     /// A receiver error returned from [`UnboundedReceiver`]'s `recv`
     #[derive(Debug, PartialEq, Eq, Clone)]
