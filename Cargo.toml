@@ -22,7 +22,7 @@ async-lock = "2.8"
 async-trait = "0.1.73"
 color-eyre = "0.6.2"
 futures = "0.3.28"
-tracing = "0.1.37"
+tracing = "0.1.39"
 tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.17", features = [
     "env-filter",
