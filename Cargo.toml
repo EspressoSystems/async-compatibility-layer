@@ -19,7 +19,7 @@ logging-utils = ["tracing-subscriber"]
 
 [dependencies]
 async-lock = "2.8"
-async-trait = "0.1.73"
+async-trait = "0.1.74"
 color-eyre = "0.6.2"
 futures = "0.3.28"
 tracing = "0.1.37"
