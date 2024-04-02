@@ -3,15 +3,21 @@ name: Ubuntu build
 on:
   push:
     branches:
-      - 'main'
+      - main
+    tags:
+      - v*.*.*
   pull_request:
     branches:
-      - 'main'
+      - main
       - '*/*'
       - 'update_flake_lock_action'
   schedule:
     - cron: '0 0 * * 1'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -46,3 +52,19 @@ jobs:
       - name: Lint
         run: |
           RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --bins --tests --examples --features="logging-utils" -- -D warnings
+
+  publish:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    env:
+        RUST_LOG: info
+        RUSTFLAGS: "--cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: katyo/publish-crates@v2
+        with:
+            # Only do an actual publish if this is a push to a release tag. Otherwise, do a dry run.
+            dry-run: ${{ !(github.event_name == 'push' && github.ref_type == 'tag') }}
+            ignore-unpublished-changes: true
+            registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
