@@ -122,7 +122,7 @@ dependencies = [
 
 [[package]]
 name = "async-compatibility-layer"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "async-channel 1.9.0",
  "async-lock 3.3.0",
