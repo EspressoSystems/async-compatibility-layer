@@ -53,13 +53,13 @@ jobs:
         run: |
           RUSTFLAGS="${{ matrix.flags }}" cargo clippy --workspace --all-targets --bins --tests --examples --features="logging-utils" -- -D warnings
 
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+
   publish:
     needs:
       - build
     runs-on: ubuntu-latest
-    env:
-        RUST_LOG: info
-        RUSTFLAGS: "--cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\""
     steps:
       - uses: actions/checkout@v4
       - uses: katyo/publish-crates@v2
