@@ -77,9 +77,9 @@ mod inner {
 /// inner module, used to group feature-specific imports
 #[cfg(async_channel_impl = "async-std")]
 mod inner {
-    pub use async_channel::{RecvError, SendError, TryRecvError};
+    pub use async_std::channel::{RecvError, SendError, TryRecvError};
 
-    use async_channel::{Receiver as InnerReceiver, Sender as InnerSender};
+    use async_std::channel::{Receiver as InnerReceiver, Sender as InnerSender};
 
     /// A bounded sender, created with [`channel`]
     pub struct Sender<T>(pub(super) InnerSender<T>);
@@ -99,7 +99,7 @@ mod inner {
     /// Create a bounded sender/receiver pair, limited to `len` messages at a time.
     #[must_use]
     pub fn bounded<T>(len: usize) -> (Sender<T>, Receiver<T>) {
-        let (sender, receiver) = async_channel::bounded(len);
+        let (sender, receiver) = async_std::channel::bounded(len);
 
         (Sender(sender), Receiver(receiver))
     }
@@ -227,7 +227,7 @@ impl<T> Stream for BoundedStream<T> {
             cx,
         );
         #[cfg(async_channel_impl = "async-std")]
-        return <async_channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
+        return <async_std::channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }
 

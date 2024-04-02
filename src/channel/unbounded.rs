@@ -271,7 +271,7 @@ impl<T> Stream for UnboundedStream<T> {
             cx,
         );
         #[cfg(async_channel_impl = "async-std")]
-        return <async_channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
+        return <async_std::channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }
 
