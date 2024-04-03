@@ -39,7 +39,7 @@ opentelemetry-jaeger = { version = "0.19.0", features = [
     "full",
     "rt-tokio-current-thread",
 ], optional = true }
-opentelemetry-aws = { version = "0.8.0", features = ["trace"], optional = true }
+opentelemetry-aws = { version = "0.10.0", features = ["trace"], optional = true }
 
 [target.'cfg(all(async_executor_impl = "tokio"))'.dependencies]
 console-subscriber = { version = "0.2.0" }
