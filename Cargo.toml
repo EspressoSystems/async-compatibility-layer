@@ -58,7 +58,7 @@ tokio = { version = "1", features = [
     "time",
     "tracing",
 ] }
-tokio-stream = { version = "0.1.14" }
+tokio-stream = { version = "0.1.15" }
 
 [target.'cfg(all(async_executor_impl = "async-std"))'.dependencies]
 async-std = { version = "1.12", features = [
@@ -82,7 +82,7 @@ tokio = { version = "1", features = [
     "time",
     "tracing",
 ] }
-tokio-stream = { version = "0.1.14" }
+tokio-stream = { version = "0.1.15" }
 
 [target.'cfg(all(async_channel_impl = "async-std"))'.dependencies]
 async-std = { version = "1.12", features = [
