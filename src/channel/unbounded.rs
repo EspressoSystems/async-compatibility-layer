@@ -92,7 +92,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(async_channel_impl = "async-std")]
+#[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
 mod inner {
     use async_std::channel::{Receiver, Sender};
     pub use async_std::channel::{
@@ -141,7 +141,7 @@ impl<T> UnboundedSender<T> {
         let result = self.0.send_async(msg).await;
         #[cfg(async_channel_impl = "tokio")]
         let result = self.0.send(msg);
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         let result = self.0.send(msg).await;
         result
     }
@@ -160,13 +160,13 @@ impl<T> UnboundedReceiver<T> {
         let result = self.0.recv_async().await;
         #[cfg(async_channel_impl = "tokio")]
         let result = self.0.lock().await.recv().await.ok_or(UnboundedRecvError);
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         let result = self.0.recv().await;
         result
     }
     /// Turn this receiver into a stream.
     pub fn into_stream(self) -> UnboundedStream<T> {
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         let result = self.0;
         #[cfg(async_channel_impl = "tokio")]
         let result = tokio_stream::wrappers::UnboundedReceiverStream::new(self.0.into_inner());
@@ -270,7 +270,7 @@ impl<T> Stream for UnboundedStream<T> {
             Pin::new(&mut self.0),
             cx,
         );
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         return <async_std::channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }

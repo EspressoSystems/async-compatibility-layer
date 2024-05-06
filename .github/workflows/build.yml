@@ -24,7 +24,10 @@ jobs:
     strategy:
       matrix:
         flags:
-          - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\" 
+          # no flags set, default to async-std
+          - ""
+          # crates that explicitly choose async-std should keep working
+          - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\"
           - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"flume\"
           - --cfg async_executor_impl=\"tokio\" --cfg async_channel_impl=\"tokio\"
           - --cfg async_executor_impl=\"tokio\" --cfg async_channel_impl=\"flume\"
@@ -59,7 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
         RUST_LOG: info
-        RUSTFLAGS: "--cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\""
     steps:
       - uses: actions/checkout@v4
       - uses: katyo/publish-crates@v2

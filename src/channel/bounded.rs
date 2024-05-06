@@ -75,7 +75,7 @@ mod inner {
 }
 
 /// inner module, used to group feature-specific imports
-#[cfg(async_channel_impl = "async-std")]
+#[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
 mod inner {
     pub use async_std::channel::{RecvError, SendError, TryRecvError};
 
@@ -134,7 +134,7 @@ impl<T> Receiver<T> {
         let result = self.0.recv_async().await;
         #[cfg(async_channel_impl = "tokio")]
         let result = self.0.recv().await.ok_or(RecvError);
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         let result = self.0.recv().await;
 
         result
@@ -144,7 +144,7 @@ impl<T> Receiver<T> {
     where
         T: 'static,
     {
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         let result = self.0;
         #[cfg(async_channel_impl = "tokio")]
         let result = tokio_stream::wrappers::ReceiverStream::new(self.0);
@@ -226,7 +226,7 @@ impl<T> Stream for BoundedStream<T> {
             Pin::new(&mut self.0),
             cx,
         );
-        #[cfg(async_channel_impl = "async-std")]
+        #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
         return <async_std::channel::Receiver<T> as Stream>::poll_next(Pin::new(&mut self.0), cx);
     }
 }

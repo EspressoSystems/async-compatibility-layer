@@ -10,6 +10,9 @@ jobs:
     strategy:
       matrix:
         flags:
+          # no flags set, default to async-std
+          - ""
+          # crates that explicitly choose async-std should keep working
           - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"async-std\"
           - --cfg async_executor_impl=\"async-std\" --cfg async_channel_impl=\"flume\"
           - --cfg async_executor_impl=\"tokio\" --cfg async_channel_impl=\"tokio\"
