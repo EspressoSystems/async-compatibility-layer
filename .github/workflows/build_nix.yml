@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -21,11 +25,6 @@ jobs:
     timeout-minutes: 60
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
-      - uses: styfle/cancel-workflow-action@0.12.1
-        name: Cancel Outdated Builds
-        with:
-          all_but_latest: true
-          access_token: ${{ github.token }}
 
       - name: Install Nix
         uses: cachix/install-nix-action@v26
@@ -39,12 +38,12 @@ jobs:
 
       - name: Build
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release --features="logging-utils"
+          nix develop -c env RUSTFLAGS="${{ matrix.flags }}" cargo build --all-targets --workspace --release --features="logging-utils"
 
       - name: Test
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release --features="logging-utils"
+          nix develop -c env RUSTFLAGS="${{ matrix.flags }}" cargo test --all-targets --workspace --release --features="logging-utils"
 
       - name: Lint
         run: |
-          nix develop -c RUSTFLAGS="${{ matrix.flags }}" cargo clippy --all-targets --workspace --release --bins --tests --examples --features="logging-utils" -- -D warnings
+          nix develop -c env RUSTFLAGS="${{ matrix.flags }}" cargo clippy --all-targets --workspace --release --bins --tests --examples --features="logging-utils" -- -D warnings
