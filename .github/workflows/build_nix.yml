@@ -27,7 +27,7 @@ jobs:
     steps:
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v26
+        uses: cachix/install-nix-action@V27
 
       - name: Checkout Repository
         uses: actions/checkout@v4
