@@ -2,7 +2,7 @@
 name = "async-compatibility-layer"
 description = "an abstraction layer for using both async-std and tokio"
 authors = ["Espresso Systems <hello@espressosys.com>"]
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 license = "MIT"
 
@@ -41,7 +41,7 @@ opentelemetry-jaeger = { version = "0.19.0", features = [
 ], optional = true }
 opentelemetry-aws = { version = "0.8.0", features = ["trace"], optional = true }
 
-[target.'cfg(all(async_executor_impl = "tokio"))'.dependencies]
+[target.'cfg(async_executor_impl = "tokio")'.dependencies]
 console-subscriber = { version = "0.2.0" }
 tokio = { version = "1", features = [
     "fs",
@@ -60,13 +60,13 @@ tokio = { version = "1", features = [
 ] }
 tokio-stream = { version = "0.1.14" }
 
-[target.'cfg(all(async_executor_impl = "async-std"))'.dependencies]
+[target.'cfg(not(async_executor_impl = "tokio"))'.dependencies]
 async-std = { version = "1.12", features = [
     "attributes",
     "unstable",
 ]}
 
-[target.'cfg(all(async_channel_impl = "tokio"))'.dependencies]
+[target.'cfg(async_channel_impl = "tokio")'.dependencies]
 tokio = { version = "1", features = [
     "fs",
     "io-util",
@@ -84,7 +84,7 @@ tokio = { version = "1", features = [
 ] }
 tokio-stream = { version = "0.1.14" }
 
-[target.'cfg(all(async_channel_impl = "async-std"))'.dependencies]
+[target.'cfg(not(any(async_channel_impl = "tokio", async_channel_impl = "flume")))'.dependencies]
 async-std = { version = "1.12", features = [
     "attributes",
     "unstable",

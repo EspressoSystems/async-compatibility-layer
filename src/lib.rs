@@ -8,11 +8,8 @@ std::compile_error!(
     "Both cfg options \"async-std\" and \"tokio\" must not be concurrently enabled for this crate."
 );
 
-#[cfg(not(any(async_executor_impl = "async-std", async_executor_impl = "tokio")))]
-compile_error! {"Either config option \"async-std\" or \"tokio\" must be enabled for this crate."}
-
 /// abstraction over both `tokio` and `async-std`, making it possible to use either based on a feature flag
-#[cfg(async_executor_impl = "async-std")]
+#[cfg(not(async_executor_impl = "tokio"))]
 #[path = "art/async-std.rs"]
 pub mod art;
 
