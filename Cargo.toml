@@ -35,7 +35,7 @@ opentelemetry = { version = "0.20.0", features = [
     "metrics",
 ], optional = true }
 tracing-opentelemetry = { version = "0.21.0", optional = true }
-opentelemetry-jaeger = { version = "0.19.0", features = [
+opentelemetry-jaeger = { version = "0.22.0", features = [
     "full",
     "rt-tokio-current-thread",
 ], optional = true }
