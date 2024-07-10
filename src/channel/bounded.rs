@@ -5,7 +5,7 @@ use futures::Stream;
 /// inner module, used to group feature-specific imports
 #[cfg(async_channel_impl = "tokio")]
 mod inner {
-    pub use tokio::sync::mpsc::error::{SendError, TryRecvError};
+    pub use tokio::sync::mpsc::error::{SendError, TryRecvError, TrySendError};
 
     use tokio::sync::mpsc::{Receiver as InnerReceiver, Sender as InnerSender};
 
@@ -47,7 +47,7 @@ mod inner {
 /// inner module, used to group feature-specific imports
 #[cfg(async_channel_impl = "flume")]
 mod inner {
-    pub use flume::{RecvError, SendError, TryRecvError};
+    pub use flume::{RecvError, SendError, TryRecvError, TrySendError};
 
     use flume::{r#async::RecvStream, Receiver as InnerReceiver, Sender as InnerSender};
 
@@ -77,7 +77,7 @@ mod inner {
 /// inner module, used to group feature-specific imports
 #[cfg(not(any(async_channel_impl = "flume", async_channel_impl = "tokio")))]
 mod inner {
-    pub use async_std::channel::{RecvError, SendError, TryRecvError};
+    pub use async_std::channel::{RecvError, SendError, TryRecvError, TrySendError};
 
     use async_std::channel::{Receiver as InnerReceiver, Sender as InnerSender};
 
@@ -120,6 +120,15 @@ impl<T> Sender<T> {
         let result = self.0.send(msg).await;
 
         result
+    }
+
+    /// Try to send a value over the channel. Will return immediately if the channel is full.
+    ///
+    /// # Errors
+    /// - If the channel is full
+    /// - If the channel is dropped
+    pub fn try_send(&self, msg: T) -> Result<(), TrySendError<T>> {
+        self.0.try_send(msg)
     }
 }
 

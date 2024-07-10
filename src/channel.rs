@@ -26,7 +26,9 @@ compile_error!(
     "async_channel_impl = 'tokio' requires tokio runtime, e. g. async_executor_impl = 'tokio'"
 );
 
-pub use bounded::{bounded, BoundedStream, Receiver, RecvError, SendError, Sender, TryRecvError};
+pub use bounded::{
+    bounded, BoundedStream, Receiver, RecvError, SendError, Sender, TryRecvError, TrySendError,
+};
 pub use oneshot::{oneshot, OneShotReceiver, OneShotRecvError, OneShotSender, OneShotTryRecvError};
 pub use unbounded::{
     unbounded, UnboundedReceiver, UnboundedRecvError, UnboundedSendError, UnboundedSender,
