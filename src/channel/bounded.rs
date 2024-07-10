@@ -127,11 +127,11 @@ impl<T> Sender<T> {
     /// # Errors
     /// - If the channel is full
     /// - If the channel is dropped
-    pub async fn try_send(&self, msg: T) -> Result<(), TrySendError<T>> {
+    pub fn try_send(&self, msg: T) -> Result<(), TrySendError<T>> {
         #[cfg(async_channel_impl = "flume")]
         let result = self.0.try_send(msg);
         #[cfg(not(all(async_channel_impl = "flume")))]
-        let result = self.0.try_send(msg).await;
+        let result = self.0.try_send(msg);
 
         result
     }
