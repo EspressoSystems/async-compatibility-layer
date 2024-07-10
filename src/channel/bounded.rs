@@ -5,7 +5,7 @@ use futures::Stream;
 /// inner module, used to group feature-specific imports
 #[cfg(async_channel_impl = "tokio")]
 mod inner {
-    pub use tokio::sync::mpsc::error::{SendError, TryRecvError};
+    pub use tokio::sync::mpsc::error::{SendError, TryRecvError, TrySendError};
 
     use tokio::sync::mpsc::{Receiver as InnerReceiver, Sender as InnerSender};
 
@@ -128,12 +128,7 @@ impl<T> Sender<T> {
     /// - If the channel is full
     /// - If the channel is dropped
     pub fn try_send(&self, msg: T) -> Result<(), TrySendError<T>> {
-        #[cfg(async_channel_impl = "flume")]
-        let result = self.0.try_send(msg);
-        #[cfg(not(all(async_channel_impl = "flume")))]
-        let result = self.0.try_send(msg);
-
-        result
+        self.0.try_send(msg)
     }
 }
 
