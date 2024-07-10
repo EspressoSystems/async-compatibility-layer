@@ -2,7 +2,7 @@
 name = "async-compatibility-layer"
 description = "an abstraction layer for using both async-std and tokio"
 authors = ["Espresso Systems <hello@espressosys.com>"]
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 license = "MIT"
 
